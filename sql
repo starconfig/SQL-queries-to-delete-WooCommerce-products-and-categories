@@ -51,7 +51,6 @@ FROM wp_postmeta pm
 LEFT JOIN wp_posts p ON p.ID = pm.post_id
 WHERE p.ID IS NULL;
 
-
 -- Delete orphaned termmeta after deleting attribute terms:
 DELETE tm
 FROM wp_termmeta tm
