@@ -56,3 +56,29 @@ DELETE tm
 FROM wp_termmeta tm
 LEFT JOIN wp_terms t ON t.term_id = tm.term_id
 WHERE t.term_id IS NULL;
+
+-- Delete Products Tags:
+BEGIN;
+
+-- Temporarily store the term_taxonomy_ids for all product tags
+CREATE TEMPORARY TABLE IF NOT EXISTS temp_product_tags AS
+SELECT term_taxonomy_id
+FROM nd21_term_taxonomy
+WHERE taxonomy = 'product_tag';
+
+-- Delete relationships to all product tags
+DELETE FROM nd21_term_relationships
+WHERE term_taxonomy_id IN (SELECT term_taxonomy_id FROM temp_product_tags);
+
+-- Delete all entries in term_taxonomy for product tags
+DELETE FROM nd21_term_taxonomy
+WHERE taxonomy = 'product_tag';
+
+-- Delete all terms that were linked to deleted product tags
+DELETE FROM nd21_terms
+WHERE term_id IN (SELECT term_id FROM temp_product_tags);
+
+-- Drop the temporary table
+DROP TABLE temp_product_tags;
+
+COMMIT;
